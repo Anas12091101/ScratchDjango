@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import random
 from email.mime.image import MIMEImage
 from io import BytesIO
+=======
+from django.conf.global_settings import EMAIL_HOST_USER
+from django.core.mail import EmailMessage
+from rest_framework_simplejwt.tokens import RefreshToken
+>>>>>>> 29ca7a9 (Implemented JWT Login)
 
 import jwt
 import pyotp
@@ -46,16 +52,24 @@ def send_email(mailto, header, message):
     )
     email.send(fail_silently=False)
 
+<<<<<<< HEAD
 def get_refresh_token(user):
     refresh = RefreshToken.for_user(user)
     payload = jwt.decode(str(refresh.access_token), settings.SECRET_KEY , algorithms=["HS256"])
     print(user.id)
     user.last_token_iat = payload['iat']
     user.save()
+=======
+
+def get_refresh_token(user):
+    refresh = RefreshToken.for_user(user)
+
+>>>>>>> 29ca7a9 (Implemented JWT Login)
     return {
         "refresh": str(refresh),
         "access": str(refresh.access_token),
     }
+<<<<<<< HEAD
 
 
 def generate_otp(user):
@@ -91,3 +105,5 @@ def check_otp_email(user, otp):
     if user.otp.email_otp == otp:
         return True
     return False
+=======
+>>>>>>> 29ca7a9 (Implemented JWT Login)
