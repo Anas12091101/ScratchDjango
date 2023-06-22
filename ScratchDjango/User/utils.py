@@ -47,7 +47,7 @@ def send_email(mailto, header, message):
         reply_to=[EMAIL_HOST_USER],
     )
     email.send(fail_silently=False)
-    
+
 def get_refresh_token(user):
     refresh = RefreshToken.for_user(user)
 

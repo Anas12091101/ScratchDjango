@@ -98,7 +98,6 @@ def check_otp(request):
     else:
         return Response({"message": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
 
-
 # Template Views
 def register_user_template(request):
     if request.method == "POST":
