@@ -3,12 +3,16 @@ import json
 import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate
+<<<<<<< HEAD
 from django.core.exceptions import ValidationError
+=======
+>>>>>>> 29ca7a9 (Implemented JWT Login)
 from django.shortcuts import redirect, render
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
 
 from .constants import HOST, WELCOME_HEADER
 from .forms import LoginForm, UserForm
@@ -22,18 +26,16 @@ from .utils import get_refresh_token, send_email
 def register_user(request):
     data = request.data
     try:
-        user = User.objects.create_user(password=data["password"], email=data["email"])
-        message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here"
-        send_email([user.email], WELCOME_HEADER, message)
-        message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here"
-        send_email([user.email], WELCOME_HEADER, message)
         user = User.objects.create_user(
             name=data["name"],
             otp_enabled=data["otp_enabled"],
             password=data["password"],
             email=data["email"],
         )
-
+        message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here"
+        send_email([user.email], WELCOME_HEADER, message)
+        message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here"
+        send_email([user.email], WELCOME_HEADER, message)
         return Response({"Success": "User Registered"}, status=status.HTTP_200_OK)
     except ValidationError as e:
         return Response({"Failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -60,6 +62,7 @@ def check_login(request):
 # Template Views
 def register_user_template(request):
     if request.method == "POST":
+        print(request.POST)
         email = request.POST["email"]
         password = request.POST["password"]
         name = request.POST["name"]
@@ -113,7 +116,6 @@ def check_login_template(request, token):
     response = requests.get(url, headers=headers)
     if response.ok:
         user = response.json()
-
         return render(request, "display_user.html", {"user": user})
     else:
         return render(request, "failed.html", {"user": user})
