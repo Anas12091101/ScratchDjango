@@ -14,7 +14,9 @@ class User(AbstractUser):
     name = CharField(_("Name of User"), blank=True, max_length=255)
     email = EmailField(_("email address"), unique=True, validators=[check_email])
     username = None  # type: ignore
-    otp_enabled = BooleanField(default=False)
+    otp_choices = [("GA", "Google Authenticator"), ("Email", "Email")]
+    email_otp = CharField(max_length=6, null=True, blank=True)
+    otp_enabled = CharField(choices=otp_choices, null=True, blank=True)
     otp_base32 = CharField(max_length=255, null=True, blank=True)
     otp_auth_url = CharField(max_length=255, null=True, blank=True)
 
