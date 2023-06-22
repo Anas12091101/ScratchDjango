@@ -3,7 +3,7 @@ import re
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.db.models import CharField, EmailField
+from django.db.models import BooleanField, CharField, EmailField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -24,6 +24,9 @@ class User(AbstractUser):
     last_name = None  # type: ignore
     email = EmailField(_("email address"), unique=True, validators=[check_email])
     username = None  # type: ignore
+    otp_enabled = BooleanField(default=False)
+    otp_base32 = CharField(max_length=255, null=True, blank=True)
+    otp_auth_url = CharField(max_length=255, null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
