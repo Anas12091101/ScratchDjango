@@ -98,13 +98,33 @@ def check_otp(request):
     else:
         return Response({"message": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
 
+@api_view(["POST"])
+def login_user(request):
+    user = authenticate(email=request.data["email"], password=request.data["password"])
+    if user:
+        token = get_refresh_token(user)
+        return Response(token, status=status.HTTP_200_OK)
+    else:
+        return Response({"Failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def check_login(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+
 # Template Views
 def register_user_template(request):
     if request.method == "POST":
+        print(request.POST)
         email = request.POST["email"]
         password = request.POST["password"]
         name = request.POST["name"]
-        otp_enabled = request.POST["otp_enabled"]
+
+        otp_enabled = True if request.POST["otp_enabled"] == ["on"] else False
         url = f"{HOST}/user/register_user/"
         payload = json.dumps(
             {"email": email, "password": password, "name": name, "otp_enabled": otp_enabled}
@@ -135,6 +155,7 @@ def login_template(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.ok:
+
             data = response.json()
             if data["type"] == GOOGLE_AUTHENTICATOR or data["type"] == "email":
                 return render(request, "otp.html", {"email": email})

@@ -9,6 +9,7 @@ idna==3.4
 psycopg==3.1.9
 PyJWT==2.7.0
 pyotp==2.8.0
+Implemented JWT Login
 pytz==2023.3
 requests==2.31.0
 sqlparse==0.4.4
