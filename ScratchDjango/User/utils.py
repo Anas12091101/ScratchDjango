@@ -1,8 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import random
 from email.mime.image import MIMEImage
 from io import BytesIO
 =======
+=======
+import random
+
+import pyotp
+>>>>>>> e021e6b (Email OTP + Google Authenticator OTP Login)
 from django.conf.global_settings import EMAIL_HOST_USER
 from django.core.mail import EmailMessage
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -70,6 +76,9 @@ def get_refresh_token(user):
         "access": str(refresh.access_token),
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e021e6b (Email OTP + Google Authenticator OTP Login)
 
 
 def generate_otp(user):
@@ -78,6 +87,7 @@ def generate_otp(user):
         name=user.email.lower(), issuer_name="scratchdjango"
     )
 
+<<<<<<< HEAD
     img = qrcode.make(otp_auth_url)
     user.otp.otp_enabled = GOOGLE_AUTHENTICATOR
     user.otp.otp_auth_url = otp_auth_url
@@ -85,6 +95,14 @@ def generate_otp(user):
     user.otp.save()
 
     return {"base32": otp_base32, "otpauth_url": otp_auth_url, "qrcode":img}
+=======
+    user.otp_auth_url = otp_auth_url
+    user.otp_base32 = otp_base32
+    user.save()
+
+    return {"base32": otp_base32, "otpauth_url": otp_auth_url}
+
+>>>>>>> e021e6b (Email OTP + Google Authenticator OTP Login)
 
 def generate_email_otp(email):
     otp = ""
@@ -95,15 +113,25 @@ def generate_email_otp(email):
 
 
 def check_otp_GA(user, otp):
+<<<<<<< HEAD
     totp = pyotp.TOTP(user.otp.otp_base32)
+=======
+    totp = pyotp.TOTP(user.otp_base32)
+>>>>>>> e021e6b (Email OTP + Google Authenticator OTP Login)
     if not totp.verify(otp):
         return False
     return True
 
 
 def check_otp_email(user, otp):
+<<<<<<< HEAD
     if user.otp.email_otp == otp:
         return True
     return False
 =======
 >>>>>>> 29ca7a9 (Implemented JWT Login)
+=======
+    if user.email_otp == otp:
+        return True
+    return False
+>>>>>>> e021e6b (Email OTP + Google Authenticator OTP Login)
