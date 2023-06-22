@@ -33,6 +33,7 @@ def register_user(request):
             password=data["password"],
             email=data["email"],
         )
+
         return Response({"Success": "User Registered"}, status=status.HTTP_200_OK)
     except ValidationError as e:
         return Response({"Failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
