@@ -81,11 +81,13 @@ def check_otp(request):
     user = User.objects.get(email=email)
     if user.otp_enabled == "GA":
         val = check_otp_GA(user, otp)
-    else:
+    elif user.otp_enabled == "Email":
         val = check_otp_email(user, otp)
         if val:
             # Resetting so that it won't be used again
             user.email_otp == "".join([str(random.randint(0, 9)) for i in range(6)])
+    else:
+        return Response({"status": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
     if val:
         token = get_refresh_token(user)
         return Response({"status": token}, status=status.HTTP_200_OK)
