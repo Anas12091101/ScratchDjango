@@ -62,6 +62,7 @@ def generate_otp(user):
     otp_auth_url = pyotp.totp.TOTP(otp_base32).provisioning_uri(
         name=user.email.lower(), issuer_name="scratchdjango"
     )
+
     img = qrcode.make(otp_auth_url)
 
     user.otp_auth_url = otp_auth_url
@@ -69,7 +70,6 @@ def generate_otp(user):
     user.save()
 
     return {"base32": otp_base32, "otpauth_url": otp_auth_url, "qrcode":img}
-
 
 def generate_email_otp(email):
     otp = ""

@@ -16,12 +16,12 @@ urlpatterns = [
     path("login/", login_user, name="login"),
     path("check_login/", check_login, name="check_login"),
    path("check_otp/", check_otp, name="check_otp"),
+
 ]
 template_url_patterns = [
     path("register_user_template/", register_user_template, name="register_user_template"),
     path("login_template/", login_template, name="login_template"),
     path("check_login_template/<str:token>", check_login_template, name="check_login_template"),
     path("otp_template/<str:email>", otp_template, name="otp_template"),
-
 ]
 urlpatterns += template_url_patterns

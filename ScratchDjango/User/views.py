@@ -102,8 +102,16 @@ def check_otp(request):
 def login_user(request):
     user = authenticate(email=request.data["email"], password=request.data["password"])
     if user:
-        token = get_refresh_token(user)
-        return Response(token, status=status.HTTP_200_OK)
+        if not user.otp_enabled:
+            token = get_refresh_token(user)
+            return Response({"status": token}, status=status.HTTP_200_OK)
+        elif user.otp_enabled == "Email":
+            otp = generate_email_otp([user.email])
+            user.email_otp = otp
+            user.save()
+            return Response({"status": "email"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"status": "GA"})
     else:
         return Response({"Failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -116,14 +124,31 @@ def check_login(request):
     return Response(serializer.data)
 
 
+@api_view(["GET"])
+def check_otp(request):
+    email = request.data["email"]
+    otp = request.data["otp"]
+    user = User.objects.get(email=email)
+    if user.otp_enabled == "GA":
+        val = check_otp_GA(user, otp)
+    else:
+        val = check_otp_email(user, otp)
+        if val:
+            # Resetting so that it won't be used again
+            user.email_otp == "".join([str(random.randint(0, 9)) for i in range(6)])
+    if val:
+        token = get_refresh_token(user)
+        return Response({"status": token}, status=status.HTTP_200_OK)
+    else:
+        return Response({"status": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 # Template Views
 def register_user_template(request):
     if request.method == "POST":
-        print(request.POST)
         email = request.POST["email"]
         password = request.POST["password"]
         name = request.POST["name"]
-
         otp_enabled = True if request.POST["otp_enabled"] == ["on"] else False
         url = f"{HOST}/user/register_user/"
         payload = json.dumps(
@@ -155,7 +180,6 @@ def login_template(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.ok:
-
             data = response.json()
             if data["type"] == GOOGLE_AUTHENTICATOR or data["type"] == "email":
                 return render(request, "otp.html", {"email": email})
