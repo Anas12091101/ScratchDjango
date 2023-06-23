@@ -62,7 +62,7 @@ def login_user(request):
             user.save()
             return Response({"status": "email"}, status=status.HTTP_200_OK)
         else:
-            return Response({"status": "GA"})
+            return Response({"status": "GA"}, status=status.HTTP_200_OK)
     else:
         return Response({"Failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 

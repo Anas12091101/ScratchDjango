@@ -1,6 +1,14 @@
 from .base import *
 
-DATABASES = {"default": env.db("DATABASE_URL", default="")}
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": env("POSTGRES_DB"),
+        "USER": env("POSTGRES_USER"),
+        "PASSWORD": env("POSTGRES_PASSWORD"),
+        "HOST": "db",
+    }
+}
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
