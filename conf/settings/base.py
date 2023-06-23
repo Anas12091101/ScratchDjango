@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "ScratchDjango.User",
     "rest_framework_simplejwt",
+    "django_rest_passwordreset",
 ]
 
 MIDDLEWARE = [
