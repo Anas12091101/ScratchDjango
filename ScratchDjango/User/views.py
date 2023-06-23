@@ -2,6 +2,7 @@ import json
 
 import requests
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -20,7 +21,7 @@ def register_user(request):
     try:
         user = User.objects.create_user(password=data["password"], email=data["email"])
         return Response({"Success": "User Registered"}, status=status.HTTP_200_OK)
-    except Exception as e:
+    except ValidationError as e:
         return Response({"Failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
