@@ -4,10 +4,15 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import BooleanField, CharField, EmailField
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django_rest_passwordreset.signals import reset_password_token_created
 
 from .managers import UserManager
+from .utils import send_email
+
+HOST = "http://127.0.0.1:8000"
 
 
 def check_email(email):
@@ -15,6 +20,21 @@ def check_email(email):
     if re.fullmatch(regex, email):
         return True
     raise ValidationError("Enter a valid Email")
+
+
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    email_plaintext_message = "{}{}".format(
+        HOST,
+        reverse("confirm_reset_template", kwargs={"token": reset_password_token.key}),
+        reset_password_token.key,
+    )
+
+    send_email(
+        [reset_password_token.user.email],
+        "Password Reset for {title}".format(title="Django Scratch"),
+        email_plaintext_message,
+    )
 
 
 class User(AbstractUser):
