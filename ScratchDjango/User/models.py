@@ -31,6 +31,21 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     )
 
 
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    email_plaintext_message = "{}{}".format(
+        HOST,
+        reverse("confirm_reset_template", kwargs={"token": reset_password_token.key}),
+        reset_password_token.key,
+    )
+
+    send_email(
+        [reset_password_token.user.email],
+        "Password Reset for {title}".format(title="Django Scratch"),
+        email_plaintext_message,
+    )
+
+
 class User(AbstractUser):
     # First and last name do not cover name patterns around the globe
     name = CharField(_("Name of User"), blank=True, max_length=255)
