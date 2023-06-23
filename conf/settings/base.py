@@ -51,11 +51,15 @@ INSTALLED_APPS = [
     "ScratchDjango.User",
     "rest_framework_simplejwt",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "django_rest_passwordreset",
     "ScratchDjango.Otp",
     "ScratchDjango.Profile",
 =======
 >>>>>>> 29ca7a9 (Implemented JWT Login)
+=======
+    "django_rest_passwordreset",
+>>>>>>> 1763774 (Reset Password with Email)
 ]
 
 MIDDLEWARE = [

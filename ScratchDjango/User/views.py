@@ -8,6 +8,7 @@ import random
 import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 >>>>>>> 29ca7a9 (Implemented JWT Login)
 from rest_framework import status
@@ -16,9 +17,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 from ScratchDjango.Otp.utils import generate_email_otp
 =======
 from .forms import LoginForm, UserForm
+=======
+from .forms import LoginForm, ResetEmailForm, ResetForm, UserForm
+>>>>>>> 1763774 (Reset Password with Email)
 from .models import User
 from .serializers import UserSerializer
 <<<<<<< HEAD
@@ -229,4 +234,48 @@ def otp_template(request, email):
         else:
             messages.error(request, response.json()["status"])
             return render(request, "otp.html", {"email": email})
+<<<<<<< HEAD
 >>>>>>> e021e6b (Email OTP + Google Authenticator OTP Login)
+=======
+
+
+def reset_template(request):
+    if request.method == "POST":
+        try:
+            email = request.POST["email"]
+            url = f"{HOST}/user/api/password_reset/"
+            payload = json.dumps({"email": email})
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(url, headers=headers, data=payload)
+            if response.ok:
+                messages.success(request, "An email has been forwarded with the reset link")
+            else:
+                messages.error(request, "Email Not Found")
+        except Exception as e:
+            messages.error(request, str(e))
+        return render(request, "reset.html", {"form": ResetEmailForm()})
+    else:
+        return render(request, "reset.html", {"form": ResetEmailForm()})
+
+
+def confirm_reset_template(request, token):
+    if request.method == "POST":
+        password = request.POST["password"]
+        confirm = request.POST["confirm_password"]
+        try:
+            if password != confirm:
+                raise ValidationError("Password donot match")
+            url = f"{HOST}/user/api/password_reset/confirm/"
+            payload = json.dumps({"token": token, "password": password})
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(url, headers=headers, data=payload)
+            response.raise_for_status()
+            if response.ok:
+                messages.success(request, "Password Reset Successful")
+                return render(request, "login.html", {"form": LoginForm()})
+        except Exception as e:
+            messages.error(request, str(e))
+            return render(request, "reset_password.html", {"form": ResetForm(), "token": token})
+    else:
+        return render(request, "reset_password.html", {"form": ResetForm(), "token": token})
+>>>>>>> 1763774 (Reset Password with Email)
