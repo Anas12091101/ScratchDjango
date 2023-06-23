@@ -8,10 +8,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from .constants import HOST
 from .forms import UserForm
 from .models import User
-
-HOST = "http://127.0.0.1:8000"
 
 
 # API Views

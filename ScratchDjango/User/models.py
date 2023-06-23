@@ -8,11 +8,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from .managers import UserManager
+from .regex import email_regex
 
 
 def check_email(email):
-    regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
-    if re.fullmatch(regex, email):
+    if re.fullmatch(email_regex, email):
         return True
     raise ValidationError("Enter a valid Email")
 
@@ -37,5 +37,5 @@ class User(AbstractUser):
         try:
             self.full_clean()
             super(User, self).save(*args, **kwargs)
-        except IntegrityError:
-            raise ValidationError("error message")
+        except IntegrityError as e:
+            raise ValidationError(str(e))
