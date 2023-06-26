@@ -1,11 +1,7 @@
-<<<<<<< HEAD
+import random
 import re
 
-=======
-import random
-
 import pyotp
->>>>>>> e021e6b (Email OTP + Google Authenticator OTP Login)
 from django.conf.global_settings import EMAIL_HOST_USER
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
