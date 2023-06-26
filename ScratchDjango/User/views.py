@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .constants import HOST, WELCOME_HEADER
+from .constants import GOOGLE_AUTHENTICATOR, HOST, WELCOME_HEADER
 from .forms import LoginForm, UserForm
 from .models import User
 from .serializers import UserSerializer
@@ -22,6 +22,7 @@ from .utils import (
     generate_otp,
     get_refresh_token,
     send_email,
+    send_email_qr,
 )
 
 
@@ -38,11 +39,11 @@ def register_user(request):
         )
 
         message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here."
-        if data["otp_enabled"] == "GA":
+        if data["otp_enabled"] == GOOGLE_AUTHENTICATOR:
             otp = generate_otp(user)
-            message += f"\n\n You Google Authenticator Key is {otp['base32']}"
-
-        send_email([user.email], WELCOME_HEADER, message)
+            send_email_qr([user.email], WELCOME_HEADER, message, qrcode=otp["qrcode"])
+        else:
+            send_email([user.email], WELCOME_HEADER, message)
         return Response({"Success": "User Registered."}, status=status.HTTP_200_OK)
     except ValidationError as e:
         return Response({"Failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -61,7 +62,7 @@ def login_user(request):
             user.save()
             return Response({"status": "email"}, status=status.HTTP_200_OK)
         else:
-            return Response({"status": "GA"})
+            return Response({"status": GOOGLE_AUTHENTICATOR},status=status.HTTP_200_OK)
     else:
         return Response({"Failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -79,7 +80,7 @@ def check_otp(request):
     email = request.data["email"]
     otp = request.data["otp"]
     user = User.objects.get(email=email)
-    if user.otp_enabled == "GA":
+    if user.otp_enabled == GOOGLE_AUTHENTICATOR:
         val = check_otp_GA(user, otp)
     elif user.otp_enabled == "Email":
         val = check_otp_email(user, otp)
@@ -133,7 +134,7 @@ def login_template(request):
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.ok:
             data = response.json()
-            if data["status"] == "GA" or data["status"] == "email":
+            if data["status"] == GOOGLE_AUTHENTICATOR or data["status"] == "email":
                 return render(request, "otp.html", {"email": email})
             else:
                 jwt_token = response.json()["access"]
@@ -174,3 +175,5 @@ def otp_template(request, email):
         else:
             messages.error(request, response.json()["status"])
             return render(request, "otp.html", {"email": email})
+    else:
+        return render(request, "otp.html", {"email": email})
