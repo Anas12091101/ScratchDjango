@@ -21,7 +21,6 @@ def register_user(request):
     data = request.data
     try:
         user = User.objects.create_user(password=data["password"], email=data["email"])
-
         message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here"
         send_email([user.email], WELCOME_HEADER, message)
         return Response({"Success": "User Registered"}, status=status.HTTP_200_OK)
