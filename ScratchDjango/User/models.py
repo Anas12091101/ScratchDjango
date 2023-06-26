@@ -1,5 +1,3 @@
-import re
-
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -8,13 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from .managers import UserManager
-from .regex import email_regex
-
-
-def check_email(email):
-    if re.fullmatch(email_regex, email):
-        return True
-    raise ValidationError("Enter a valid Email")
+from .utils import check_email
 
 
 class User(AbstractUser):
