@@ -59,7 +59,6 @@ def check_login(request):
 # Template Views
 def register_user_template(request):
     if request.method == "POST":
-        print(request.POST)
         email = request.POST["email"]
         password = request.POST["password"]
         name = request.POST["name"]
@@ -113,7 +112,7 @@ def check_login_template(request, token):
     response = requests.get(url, headers=headers)
     if response.ok:
         user = response.json()
-        print(user)
+
         return render(request, "display_user.html", {"user": user})
     else:
         return render(request, "failed.html", {"user": user})
