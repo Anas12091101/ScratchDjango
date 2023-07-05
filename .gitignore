@@ -1,12 +1,7 @@
 .env
 conf/__pycache__/
 conf/settings/__pycache__/
-<<<<<<< HEAD
 ScratchDjango/**/__pycache__/
 data/
 ScratchDjango/**/**/__pycache__/
 ScratchDjango/media/avatars/
-=======
-ScratchDjango/User/__pycache__/
-data/
->>>>>>> d18eb45 (Dockerized)
