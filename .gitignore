@@ -1,5 +1,6 @@
 .env
 conf/__pycache__/
 conf/settings/__pycache__/
-ScratchDjango/User/__pycache__/
+ScratchDjango/**/__pycache__/
 data/
+ScratchDjango/**/migrations/__pycache__/
