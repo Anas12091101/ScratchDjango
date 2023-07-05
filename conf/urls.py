@@ -24,7 +24,7 @@ urlpatterns = [
     path("user/", include("ScratchDjango.User.urls")),
     path("otp/",include("ScratchDjango.Otp.urls")),
     path("profile/",include("ScratchDjango.Profile.urls")),
-
+    path("subscription/",include("ScratchDjango.Subscriptions.urls"))
 ]
 
 # serving files in development env
