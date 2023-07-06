@@ -44,9 +44,9 @@ def register_user(request):
 
         header = "Welcome to Scratch Django!"
         send_email([user.email], header, message)
-        return Response({"Success": "User Registered."}, status=status.HTTP_200_OK)
+        return Response({"status": "User Registered."}, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({"Failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"status": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -64,7 +64,7 @@ def login_user(request):
         else:
             return Response({"status": "GA"}, status=status.HTTP_200_OK)
     else:
-        return Response({"Failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"status": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET"])
@@ -75,12 +75,13 @@ def check_login(request):
     return Response(serializer.data)
 
 
-@api_view(["GET"])
+@api_view(["GET","POST"])
 def check_otp(request):
     email = request.data["email"]
     otp = request.data["otp"]
     user = User.objects.get(email=email)
-    if user.otp_enabled == "GA":
+    print(email,otp,user)
+    if user.otp_enabled == "GA": 
         val = check_otp_GA(user, otp)
     elif user.otp_enabled == "Email":
         val = check_otp_email(user, otp)
@@ -111,11 +112,11 @@ def register_user_template(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.ok:
-            messages.success(request, response.json()["Success"])
+            messages.success(request, response.json()["status"])
             return render(request, "login.html", {"form": LoginForm()})
 
         else:
-            messages.error(request, response.json()["Failed"])
+            messages.error(request, response.json()["status"])
             return render(request, "register.html", {"form": UserForm()})
 
     else:
@@ -142,7 +143,7 @@ def login_template(request):
                 return redirect("check_login_template", token=jwt_token)
 
         else:
-            messages.error(request, response.json()["Failed"])
+            messages.error(request, response.json()["status"])
             return render(request, "login.html", {"form": LoginForm()})
 
     else:
