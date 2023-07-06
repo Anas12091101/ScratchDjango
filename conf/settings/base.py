@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "ScratchDjango.Profile",
     "django_rest_passwordreset",
     'ScratchDjango.Subscriptions'
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
