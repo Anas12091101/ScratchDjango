@@ -44,9 +44,9 @@ def register_user(request):
             send_email_qr([user.email], WELCOME_HEADER, message, qrcode=otp["qrcode"])
         else:
             send_email([user.email], WELCOME_HEADER, message)
-        return Response({"Success": "User Registered."}, status=status.HTTP_200_OK)
+        return Response({"success": "User Registered."}, status=status.HTTP_200_OK)
     except ValidationError as e:
-        return Response({"Failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -55,7 +55,7 @@ def login_user(request):
     if user:
         if not user.otp_enabled:
             token = get_refresh_token(user)
-            return Response({"status": token}, status=status.HTTP_200_OK)
+            return Response({"token": token}, status=status.HTTP_200_OK)
         elif user.otp_enabled == "Email":
             otp = generate_email_otp([user.email])
             user.email_otp = otp
@@ -64,7 +64,7 @@ def login_user(request):
         else:
             return Response({"status": GOOGLE_AUTHENTICATOR},status=status.HTTP_200_OK)
     else:
-        return Response({"Failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET"])
@@ -88,12 +88,12 @@ def check_otp(request):
             # Resetting so that it won't be used again
             user.email_otp == "".join([str(random.randint(0, 9)) for i in range(6)])
     else:
-        return Response({"status": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"failed": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
     if val:
         token = get_refresh_token(user)
-        return Response({"status": token}, status=status.HTTP_200_OK)
+        return Response({"token": token}, status=status.HTTP_200_OK)
     else:
-        return Response({"status": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"failed": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Template Views
