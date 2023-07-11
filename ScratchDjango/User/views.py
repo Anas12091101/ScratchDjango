@@ -75,12 +75,15 @@ def check_login(request):
     return Response(serializer.data)
 
 
-@api_view(["GET"])
+@api_view(["GET","POST"])
 def check_otp(request):
     email = request.data["email"]
+    password = request.data["password"]
+    user = authenticate(email=email, password=password)
+    if not user:
+        return Response({"status": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
     otp = request.data["otp"]
-    user = User.objects.get(email=email)
-    if user.otp_enabled == GOOGLE_AUTHENTICATOR:
+    if user.otp_enabled == "GA": 
         val = check_otp_GA(user, otp)
     elif user.otp_enabled == "Email":
         val = check_otp_email(user, otp)
@@ -88,12 +91,12 @@ def check_otp(request):
             # Resetting so that it won't be used again
             user.email_otp == "".join([str(random.randint(0, 9)) for i in range(6)])
     else:
-        return Response({"failed": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"status": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
     if val:
         token = get_refresh_token(user)
-        return Response({"token": token}, status=status.HTTP_200_OK)
+        return Response({"status": token}, status=status.HTTP_200_OK)
     else:
-        return Response({"failed": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"status": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Template Views
