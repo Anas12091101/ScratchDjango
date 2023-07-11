@@ -44,9 +44,9 @@ def register_user(request):
             send_email_qr([user.email], WELCOME_HEADER, message, qrcode=otp["qrcode"])
         else:
             send_email([user.email], WELCOME_HEADER, message)
-        return Response({"success": "User Registered."}, status=status.HTTP_200_OK)
+        return Response({"message": "User Registered."}, status=status.HTTP_200_OK)
     except ValidationError as e:
-        return Response({"failed": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -60,11 +60,11 @@ def login_user(request):
             otp = generate_email_otp([user.email])
             user.email_otp = otp
             user.save()
-            return Response({"status": "email"}, status=status.HTTP_200_OK)
+            return Response({"type": "email"}, status=status.HTTP_200_OK)
         else:
-            return Response({"status": GOOGLE_AUTHENTICATOR},status=status.HTTP_200_OK)
+            return Response({"type": GOOGLE_AUTHENTICATOR},status=status.HTTP_200_OK)
     else:
-        return Response({"failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["GET"])
@@ -81,7 +81,7 @@ def check_otp(request):
     password = request.data["password"]
     user = authenticate(email=email, password=password)
     if not user:
-        return Response({"status": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
     otp = request.data["otp"]
     if user.otp_enabled == "GA": 
         val = check_otp_GA(user, otp)
@@ -91,12 +91,12 @@ def check_otp(request):
             # Resetting so that it won't be used again
             user.email_otp == "".join([str(random.randint(0, 9)) for i in range(6)])
     else:
-        return Response({"status": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
     if val:
         token = get_refresh_token(user)
-        return Response({"status": token}, status=status.HTTP_200_OK)
+        return Response({"token": token}, status=status.HTTP_200_OK)
     else:
-        return Response({"status": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"message": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Template Views
@@ -137,7 +137,7 @@ def login_template(request):
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.ok:
             data = response.json()
-            if data["status"] == GOOGLE_AUTHENTICATOR or data["status"] == "email":
+            if data["type"] == GOOGLE_AUTHENTICATOR or data["type"] == "email":
                 return render(request, "otp.html", {"email": email})
             else:
                 jwt_token = response.json()["access"]
@@ -172,11 +172,11 @@ def otp_template(request, email):
         payload = json.dumps({"otp": otp, "email": email})
         response = requests.get(url, headers=headers, data=payload)
         if response.ok:
-            jwt_token = response.json()["status"]["access"]
+            jwt_token = response.json()["token"]["access"]
             messages.success(request, "Logged In")
             return redirect("check_login_template", token=jwt_token)
         else:
-            messages.error(request, response.json()["status"])
+            messages.error(request, response.json()["message"])
             return render(request, "otp.html", {"email": email})
     else:
         return render(request, "otp.html", {"email": email})
