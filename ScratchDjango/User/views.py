@@ -78,9 +78,11 @@ def check_login(request):
 @api_view(["GET","POST"])
 def check_otp(request):
     email = request.data["email"]
+    password = request.data["password"]
+    user = authenticate(email=email, password=password)
+    if not user:
+        return Response({"status": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
     otp = request.data["otp"]
-    user = User.objects.get(email=email)
-    print(email,otp,user)
     if user.otp_enabled == "GA": 
         val = check_otp_GA(user, otp)
     elif user.otp_enabled == "Email":

@@ -34,7 +34,7 @@ if READ_DOT_ENV_FILE:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "9798-223-123-107-185.ngrok-free.app"]
 
 AUTH_USER_MODEL = "User.User"
 
@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_rest_passwordreset",
     'ScratchDjango.Subscriptions',
-    'corsheaders',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
