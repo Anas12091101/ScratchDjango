@@ -2,6 +2,7 @@ import datetime
 
 from dateutil.relativedelta import relativedelta
 from django.db import models
+from django.db.models import JSONField
 
 from ScratchDjango.User.models import User
 
@@ -23,9 +24,13 @@ class Membership(models.Model):
       )
     price = models.DecimalField(default=0.0, max_digits=10, decimal_places=3)
     period = models.CharField(choices=period_choices, max_length=20)
-    
+    features = JSONField()
+
+    class Meta:
+        ordering = ("id",)
     def __str__(self):
        return str(self.membership_type)+"_"+self.period
+    
 
 class Subscription(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
