@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from .models import Membership, Subscription
 from .serializers import MembershipSerializer
+from .utils import capture_order, create_order
 
 
 @api_view(["GET"])
@@ -12,12 +13,36 @@ def get_membership_details(request):
     serializer = MembershipSerializer(memberships, many=True)
     return Response(serializer.data)
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_membership(request):
+    user = request.user
+    subscription = Subscription.objects.get(user=user)
+    membership = subscription.membership
+    serializer = MembershipSerializer(membership, many=False)
+    return Response(serializer.data)
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def subscribe(request):
+def create_paypal_order(request):
     data = request.data
-    id = data["id"]
-    membership = Membership.objects.get(id=id)
-    subscription = Subscription.objects.create(user=request.user,membership=membership,expire_date=None)
-    subscription.save()
-    return Response({"status":"subscription activated"})
+    response = create_order(price=data["price"])
+    return Response(response)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def capture_paypal_order(request):
+    data = request.data
+    response = capture_order(data["orderId"])
+    transaction = response["purchase_units"][0]["payments"]["captures"][0]
+    if transaction["status"] == "COMPLETED":
+        user = request.user
+        subscription = Subscription.objects.get(user=user)
+        membership = Membership.objects.get(id=data["memberId"])
+        if subscription:
+            subscription.membership = membership
+        else:    
+            subscription = Subscription.objects.create(user=request.user,membership=membership,expire_date=None)
+        subscription.save()
+
+    return Response(response)
