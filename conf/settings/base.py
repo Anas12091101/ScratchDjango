@@ -34,7 +34,7 @@ if READ_DOT_ENV_FILE:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "9798-223-123-107-185.ngrok-free.app"]
+ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1"]
 
 AUTH_USER_MODEL = "User.User"
 
