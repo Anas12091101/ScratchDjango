@@ -48,7 +48,7 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         try:
-            self.full_clean()
+            # self.full_clean()
             super(User, self).save(*args, **kwargs)
         except IntegrityError as e:
             raise ValidationError(str(e))

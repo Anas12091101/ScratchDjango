@@ -26,7 +26,7 @@ def create_qr_data(qrcode):
     image = MIMEImage(binary_data)
     return image
 
-def send_email_qr(mailto, header, message):
+def send_email_qr(mailto, header, message, qrcode):
     email = EmailMultiAlternatives(
         header,
         message,

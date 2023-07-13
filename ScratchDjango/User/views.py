@@ -39,7 +39,9 @@ def register_user(request):
         )
 
         message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here."
+        print(data["otp_enabled"])
         if data["otp_enabled"] == GOOGLE_AUTHENTICATOR:
+            print("here")
             otp = generate_otp(user)
             send_email_qr([user.email], WELCOME_HEADER, message, qrcode=otp["qrcode"])
         else:
@@ -53,7 +55,7 @@ def register_user(request):
 def login_user(request):
     user = authenticate(email=request.data["email"], password=request.data["password"])
     if user:
-        if not user.otp_enabled:
+        if user.otp_enabled=="false":
             token = get_refresh_token(user)
             return Response({"token": token}, status=status.HTTP_200_OK)
         elif user.otp_enabled == "Email":
@@ -98,51 +100,6 @@ def check_otp(request):
     else:
         return Response({"message": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
 
-@api_view(["POST"])
-def login_user(request):
-    user = authenticate(email=request.data["email"], password=request.data["password"])
-    if user:
-        if not user.otp_enabled:
-            token = get_refresh_token(user)
-            return Response({"status": token}, status=status.HTTP_200_OK)
-        elif user.otp_enabled == "Email":
-            otp = generate_email_otp([user.email])
-            user.email_otp = otp
-            user.save()
-            return Response({"status": "email"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"status": "GA"})
-    else:
-        return Response({"Failed": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def check_login(request):
-    user = request.user
-    serializer = UserSerializer(user)
-    return Response(serializer.data)
-
-
-@api_view(["GET"])
-def check_otp(request):
-    email = request.data["email"]
-    otp = request.data["otp"]
-    user = User.objects.get(email=email)
-    if user.otp_enabled == "GA":
-        val = check_otp_GA(user, otp)
-    else:
-        val = check_otp_email(user, otp)
-        if val:
-            # Resetting so that it won't be used again
-            user.email_otp == "".join([str(random.randint(0, 9)) for i in range(6)])
-    if val:
-        token = get_refresh_token(user)
-        return Response({"status": token}, status=status.HTTP_200_OK)
-    else:
-        return Response({"status": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 # Template Views
 def register_user_template(request):
     if request.method == "POST":
@@ -158,11 +115,11 @@ def register_user_template(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.ok:
-            messages.success(request, response.json()["Success"])
+            messages.success(request, response.json()["message"])
             return render(request, "login.html", {"form": LoginForm()})
 
         else:
-            messages.error(request, response.json()["Failed"])
+            messages.error(request, response.json()["message"])
             return render(request, "register.html", {"form": UserForm()})
 
     else:
