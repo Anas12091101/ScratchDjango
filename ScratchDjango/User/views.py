@@ -12,7 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .constants import GOOGLE_AUTHENTICATOR, HOST, WELCOME_HEADER
-from .forms import LoginForm, ResetEmailForm, ResetForm, UserForm
 from .models import User
 from .serializers import UserSerializer
 from .utils import (
@@ -39,9 +38,7 @@ def register_user(request):
         )
 
         message = f"Hi {user.email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here."
-        print(data["otp_enabled"])
         if data["otp_enabled"] == GOOGLE_AUTHENTICATOR:
-            print("here")
             otp = generate_otp(user)
             send_email_qr([user.email], WELCOME_HEADER, message, qrcode=otp["qrcode"])
         else:
@@ -55,7 +52,7 @@ def register_user(request):
 def login_user(request):
     user = authenticate(email=request.data["email"], password=request.data["password"])
     if user:
-        if user.otp_enabled=="false":
+        if not user.otp_enabled:
             token = get_refresh_token(user)
             return Response({"token": token}, status=status.HTTP_200_OK)
         elif user.otp_enabled == "Email":
@@ -99,126 +96,3 @@ def check_otp(request):
         return Response({"token": token}, status=status.HTTP_200_OK)
     else:
         return Response({"message": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
-
-# Template Views
-def register_user_template(request):
-    if request.method == "POST":
-        email = request.POST["email"]
-        password = request.POST["password"]
-        name = request.POST["name"]
-        otp_enabled = True if request.POST["otp_enabled"] == ["on"] else False
-        url = f"{HOST}/user/register_user/"
-        payload = json.dumps(
-            {"email": email, "password": password, "name": name, "otp_enabled": otp_enabled}
-        )
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        if response.ok:
-            messages.success(request, response.json()["message"])
-            return render(request, "login.html", {"form": LoginForm()})
-
-        else:
-            messages.error(request, response.json()["message"])
-            return render(request, "register.html", {"form": UserForm()})
-
-    else:
-        form = UserForm()
-        return render(request, "register.html", {"form": form})
-
-
-def login_template(request):
-    if request.method == "POST":
-        email = request.POST["email"]
-        password = request.POST["password"]
-        url = f"{HOST}/user/login/"
-        payload = json.dumps({"email": email, "password": password})
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        if response.ok:
-            data = response.json()
-            if data["type"] == GOOGLE_AUTHENTICATOR or data["type"] == "email":
-                return render(request, "otp.html", {"email": email})
-            else:
-                jwt_token = response.json()["access"]
-                messages.success(request, "Logged In")
-                return redirect("check_login_template", token=jwt_token)
-
-        else:
-            messages.error(request, response.json()["Failed"])
-            return render(request, "login.html", {"form": LoginForm()})
-
-    else:
-        form = LoginForm()
-        return render(request, "login.html", {"form": form})
-
-
-def check_login_template(request, token):
-    url = f"{HOST}/user/check_login/"
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-    response = requests.get(url, headers=headers)
-    if response.ok:
-        user = response.json()
-        return render(request, "display_user.html", {"user": user})
-    else:
-        return render(request, "failed.html", {"user": user})
-
-
-def otp_template(request, email):
-    if request.method == "POST":
-        otp = request.POST["otp"]
-        url = f"{HOST}/user/check_otp/"
-        headers = {"Content-Type": "application/json"}
-        payload = json.dumps({"otp": otp, "email": email})
-        response = requests.get(url, headers=headers, data=payload)
-        if response.ok:
-            jwt_token = response.json()["token"]["access"]
-            messages.success(request, "Logged In")
-            return redirect("check_login_template", token=jwt_token)
-        else:
-            messages.error(request, response.json()["message"])
-            return render(request, "otp.html", {"email": email})
-    else:
-        return render(request, "otp.html", {"email": email})
-
-def reset_template(request):
-    if request.method == "POST":
-        try:
-            email = request.POST["email"]
-            url = f"{HOST}/user/api/password_reset/"
-            payload = json.dumps({"email": email})
-            headers = {"Content-Type": "application/json"}
-            response = requests.post(url, headers=headers, data=payload)
-            if response.ok:
-                messages.success(request, "An email has been forwarded with the reset link")
-            else:
-                messages.error(request, "Email Not Found")
-        except Exception as e:
-            messages.error(request, str(e))
-        return render(request, "reset.html", {"form": ResetEmailForm()})
-    else:
-        return render(request, "reset.html", {"form": ResetEmailForm()})
-
-
-def confirm_reset_template(request, token):
-    if request.method == "POST":
-        password = request.POST["password"]
-        confirm = request.POST["confirm_password"]
-        try:
-            if password != confirm:
-                raise ValidationError("Password donot match")
-            url = f"{HOST}/user/api/password_reset/confirm/"
-            payload = json.dumps({"token": token, "password": password})
-            headers = {"Content-Type": "application/json"}
-            response = requests.post(url, headers=headers, data=payload)
-            response.raise_for_status()
-            if response.ok:
-                messages.success(request, "Password Reset Successful")
-                return render(request, "login.html", {"form": LoginForm()})
-        except Exception as e:
-            messages.error(request, str(e))
-            return render(request, "reset_password.html", {"form": ResetForm(), "token": token})
-    else:
-        return render(request, "reset_password.html", {"form": ResetForm(), "token": token})
-

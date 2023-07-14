@@ -14,10 +14,10 @@ from .utils import check_email, send_email
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
-    email_plaintext_message = "Hi, You have initiated a password reset request. Click on the link below to reset your password. \n\n{}{}".format(
+    email_plaintext_message = "Hi, You have initiated a password reset request. Click on the link below to reset your password. \n\n{}{}token={}".format(
         FRONTEND_URL,
-        reverse("confirm_reset_template", kwargs={"token": reset_password_token.key}),
-        reset_password_token.key,
+        "reset/?confirm=true&",
+        reset_password_token.key
     )
 
     send_email(
