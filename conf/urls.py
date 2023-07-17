@@ -20,4 +20,5 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/", include("ScratchDjango.User.urls")),
+    path("otp/",include("ScratchDjango.Otp.urls"))
 ]
