@@ -26,7 +26,7 @@ def create_qr_data(qrcode):
     image = MIMEImage(binary_data)
     return image
 
-def send_email_qr(mailto, header, message):
+def send_email_qr(mailto, header, message, qrcode):
     email = EmailMultiAlternatives(
         header,
         message,
@@ -47,7 +47,7 @@ def send_email(mailto, header, message):
         reply_to=[EMAIL_HOST_USER],
     )
     email.send(fail_silently=False)
-    
+
 def get_refresh_token(user):
     refresh = RefreshToken.for_user(user)
 
@@ -62,6 +62,7 @@ def generate_otp(user):
     otp_auth_url = pyotp.totp.TOTP(otp_base32).provisioning_uri(
         name=user.email.lower(), issuer_name="scratchdjango"
     )
+
     img = qrcode.make(otp_auth_url)
 
     user.otp_auth_url = otp_auth_url
@@ -69,7 +70,6 @@ def generate_otp(user):
     user.save()
 
     return {"base32": otp_base32, "otpauth_url": otp_auth_url, "qrcode":img}
-
 
 def generate_email_otp(email):
     otp = ""

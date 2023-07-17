@@ -12,7 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .constants import GOOGLE_AUTHENTICATOR, HOST, WELCOME_HEADER
-from .forms import LoginForm, UserForm
 from .models import User
 from .serializers import UserSerializer
 from .utils import (
@@ -97,86 +96,3 @@ def check_otp(request):
         return Response({"token": token}, status=status.HTTP_200_OK)
     else:
         return Response({"message": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# Template Views
-def register_user_template(request):
-    if request.method == "POST":
-        email = request.POST["email"]
-        password = request.POST["password"]
-        name = request.POST["name"]
-        otp_enabled = request.POST["otp_enabled"]
-        url = f"{HOST}/user/register_user/"
-        payload = json.dumps(
-            {"email": email, "password": password, "name": name, "otp_enabled": otp_enabled}
-        )
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        if response.ok:
-            messages.success(request, response.json()["Success"])
-            return render(request, "login.html", {"form": LoginForm()})
-
-        else:
-            messages.error(request, response.json()["Failed"])
-            return render(request, "register.html", {"form": UserForm()})
-
-    else:
-        form = UserForm()
-        return render(request, "register.html", {"form": form})
-
-
-def login_template(request):
-    if request.method == "POST":
-        email = request.POST["email"]
-        password = request.POST["password"]
-        url = f"{HOST}/user/login/"
-        payload = json.dumps({"email": email, "password": password})
-        headers = {"Content-Type": "application/json"}
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        if response.ok:
-            data = response.json()
-            if data["type"] == GOOGLE_AUTHENTICATOR or data["type"] == "email":
-                return render(request, "otp.html", {"email": email})
-            else:
-                jwt_token = response.json()["access"]
-                messages.success(request, "Logged In")
-                return redirect("check_login_template", token=jwt_token)
-
-        else:
-            messages.error(request, response.json()["Failed"])
-            return render(request, "login.html", {"form": LoginForm()})
-
-    else:
-        form = LoginForm()
-        return render(request, "login.html", {"form": form})
-
-
-def check_login_template(request, token):
-    url = f"{HOST}/user/check_login/"
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
-    response = requests.get(url, headers=headers)
-    if response.ok:
-        user = response.json()
-        return render(request, "display_user.html", {"user": user})
-    else:
-        return render(request, "failed.html", {"user": user})
-
-
-def otp_template(request, email):
-    if request.method == "POST":
-        otp = request.POST["otp"]
-        url = f"{HOST}/user/check_otp/"
-        headers = {"Content-Type": "application/json"}
-        payload = json.dumps({"otp": otp, "email": email})
-        response = requests.get(url, headers=headers, data=payload)
-        if response.ok:
-            jwt_token = response.json()["token"]["access"]
-            messages.success(request, "Logged In")
-            return redirect("check_login_template", token=jwt_token)
-        else:
-            messages.error(request, response.json()["message"])
-            return render(request, "otp.html", {"email": email})
-    else:
-        return render(request, "otp.html", {"email": email})

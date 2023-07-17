@@ -2,11 +2,29 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import BooleanField, CharField, EmailField
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django_rest_passwordreset.signals import reset_password_token_created
 
+from .constants import FRONTEND_URL, HOST
 from .managers import UserManager
-from .utils import check_email
+from .utils import check_email, send_email
+
+
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    email_plaintext_message = "Hi, You have initiated a password reset request. Click on the link below to reset your password. \n\n{}{}token={}".format(
+        FRONTEND_URL,
+        "reset/?confirm=true&",
+        reset_password_token.key
+    )
+
+    send_email(
+        [reset_password_token.user.email],
+        "Password Reset for {title}".format(title="Django Scratch"),
+        email_plaintext_message,
+    )
 
 
 class User(AbstractUser):
@@ -30,7 +48,7 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         try:
-            self.full_clean()
+            # self.full_clean()
             super(User, self).save(*args, **kwargs)
         except IntegrityError as e:
             raise ValidationError(str(e))
