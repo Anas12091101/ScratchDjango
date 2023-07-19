@@ -1,16 +1,9 @@
-
 # Django Scratch
 
-A SaaS based django application built from scratch. 
-
-
-
-
-
-
-
+A SaaS based django application built from scratch.
 
 ## Run Locally
+
 Clone the project
 
 ```bash
@@ -40,7 +33,7 @@ Add .env file
 
 ```bash
   docker compose up
-  docker sh -it <web container name> -bash
+  docker exec -it <web container name> -bash
   python manage.py migrate
 ```
 
@@ -52,77 +45,71 @@ Add .env file
   python manage.py runserver
 ```
 
-
 ## API Reference
 
 #### Register User
+
 Registers the user
+
 ```http
   POST /user/register_user/
 ```
 
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `name` | `string` | **Required** Your name |
-| `otp_enabled` | `string` | **Required** None or "GA"(for google Authenticator) or "Email"(for email based OTP)|
-| `email` | `string` | **Required** Your valid email |
-| `password` | `string` | **Required** Password |
-
+| Parameter     | Type     | Description                                                                         |
+| :------------ | :------- | :---------------------------------------------------------------------------------- |
+| `name`        | `string` | **Required** Your name                                                              |
+| `otp_enabled` | `string` | **Required** None or "GA"(for google Authenticator) or "Email"(for email based OTP) |
+| `email`       | `string` | **Required** Your valid email                                                       |
+| `password`    | `string` | **Required** Password                                                               |
 
 #### Login
+
 Returns JWT token on valid credentials if OTP is not enabled else the type of OTP
+
 ```http
   POST /user/login/
 ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `email`      | `string` | **Required**  |
-| `password`      | `string` | **Required**  |
-
-
+| Parameter  | Type     | Description  |
+| :--------- | :------- | :----------- |
+| `email`    | `string` | **Required** |
+| `password` | `string` | **Required** |
 
 #### Check OTP
+
 Returns JWT token on valid credentials and OTP
+
 ```http
   POST /user/check_otp/
 ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `email`      | `string` | **Required** |
-| `password`      | `string` | **Required**  |
-| `otp`      | `string` | **Required**  |
-
+| Parameter  | Type     | Description  |
+| :--------- | :------- | :----------- |
+| `email`    | `string` | **Required** |
+| `password` | `string` | **Required** |
+| `otp`      | `string` | **Required** |
 
 #### Password Reset
+
 Sends email with the reset token
+
 ```http
   POST /user/api/password_reset/
 ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `email`      | `string` | **Required** |
+| Parameter | Type     | Description  |
+| :-------- | :------- | :----------- |
+| `email`   | `string` | **Required** |
 
 #### Password Confirm Reset
+
 Resets the password
+
 ```http
   POST /user/api/password_reset/confirm/
 ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `token`      | `string` | **Required** |
-| `password`      | `string` | **Required**  |
-
-
-
-
-
-
-
-
-
-
-
+| Parameter  | Type     | Description  |
+| :--------- | :------- | :----------- |
+| `token`    | `string` | **Required** |
+| `password` | `string` | **Required** |
