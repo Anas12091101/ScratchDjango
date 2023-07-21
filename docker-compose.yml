@@ -7,6 +7,7 @@ services:
       - ./data/db:/var/lib/postgresql/data
     env_file:
       - .env
+ 
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -16,5 +17,21 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     env_file:
       - .env
+
+  celery:
+    build: .
+    command: celery -A conf worker -l INFO # Command used to start the Celery worker in the Docker container
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+      # depends on show that celery worker service requires the web service and the redis service to run
+    depends_on: 
+      - web
+      - redis
+  
+  redis:
+    image: redis:6-alpine

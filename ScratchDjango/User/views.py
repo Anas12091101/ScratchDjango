@@ -10,13 +10,13 @@ from ScratchDjango.Otp.utils import generate_email_otp
 from .constants import GOOGLE_AUTHENTICATOR, WELCOME_HEADER
 from .models import User
 from .serializers import UserSerializer
-from .utils import (
+from .tasks import send_email
+from .utils import (  # send_email,
     check_otp_email,
     check_otp_GA,
     generate_email_otp,
     generate_otp,
     get_refresh_token,
-    send_email,
 )
 
 
@@ -28,11 +28,11 @@ def register_user(request):
     if user_serializer.is_valid():
         user_serializer.save()
         message = f"Hi {email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here."
-        send_email([email], WELCOME_HEADER, message)
+        send_email.delay([email], WELCOME_HEADER, message)
         return Response({"message": "User Registered."}, status=status.HTTP_200_OK)
     else:
         return Response({"message":user_serializer.errors})
-
+    
 
 @api_view(["POST"])
 def login_user(request):

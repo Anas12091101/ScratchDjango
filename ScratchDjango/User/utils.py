@@ -11,37 +11,8 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .constants import GOOGLE_AUTHENTICATOR
+from .tasks import send_email
 
-
-def create_qr_data(qrcode):
-    buffer = BytesIO()
-    qrcode.save(buffer)
-    buffer.seek(0)
-    binary_data = buffer.getvalue()
-    image = MIMEImage(binary_data)
-    return image
-
-def send_email_qr(mailto, header, message, qrcode):
-    email = EmailMultiAlternatives(
-        header,
-        message,
-        EMAIL_HOST_USER,
-        mailto,
-        reply_to=[EMAIL_HOST_USER],
-    )
-    email.mixed_subtype = 'related'
-    email.attach(create_qr_data(qrcode))
-    email.send(fail_silently=False)
-
-def send_email(mailto, header, message):
-    email = EmailMessage(
-        header,
-        message,
-        EMAIL_HOST_USER,
-        mailto,
-        reply_to=[EMAIL_HOST_USER],
-    )
-    email.send(fail_silently=False)
 
 def get_refresh_token(user):
     refresh = RefreshToken.for_user(user)
@@ -72,7 +43,7 @@ def generate_email_otp(email):
     otp = ""
     for i in range(6):
         otp += str(random.randint(0, 9))
-    send_email(email, "OTP", f"Your OTP is {otp}")
+    send_email.delay(email, "OTP", f"Your OTP is {otp}")
     return otp
 
 
