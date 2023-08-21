@@ -13,13 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ScratchDjango.Otp.models import Otp
 
 from .constants import GOOGLE_AUTHENTICATOR
-from .regex import email_regex
 
-
-def check_email(email):
-    if re.fullmatch(email_regex, email):
-        return True
-    raise ValidationError("Enter a valid Email")
 
 def create_qr_data(qrcode):
     buffer = BytesIO()

@@ -14,11 +14,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/", include("ScratchDjango.User.urls")),
-    path("otp/",include("ScratchDjango.Otp.urls"))
+    path("otp/",include("ScratchDjango.Otp.urls")),
+    path("profile/",include("ScratchDjango.Profile.urls")),
+
 ]
+
+# serving files in development env
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

@@ -12,7 +12,8 @@ from ScratchDjango.Otp.models import Otp
 
 from .constants import FRONTEND_URL, HOST
 from .managers import UserManager
-from .utils import check_email, send_email
+from .utils import send_email
+from .validators import check_email
 
 
 @receiver(reset_password_token_created)
