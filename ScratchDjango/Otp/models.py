@@ -4,14 +4,7 @@ from django.db.models import CharField
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-# @receiver(pre_save, sender=User)
-# def my_handler(sender, **kwargs):
-#     print("here")
-#     if sender.pk is None:  # create
-#         print(sender)
-#         otp = Otp.objects.create(user=sender)
-        
-# Create your models here.
+
 class Otp(models.Model):
     otp_choices = [("GA", "Google Authenticator"), ("Email", "Email")]
     user = models.OneToOneField(to="User.User", on_delete=models.CASCADE)

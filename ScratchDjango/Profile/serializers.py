@@ -1,3 +1,5 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from rest_framework import serializers
 
 from ScratchDjango.User.models import User
@@ -6,6 +8,12 @@ from ScratchDjango.User.serializers import UserSerializer
 from .models import Profile
 from .validators import validate_image
 
+
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, **kwargs):
+    profile_serializer = ProfileSerializer(data={}, context={"email":instance.email}, partial=True)
+    if profile_serializer.is_valid():
+        profile_serializer.save()
 
 class ProfileSerializer(serializers.Serializer):
     user = UserSerializer()

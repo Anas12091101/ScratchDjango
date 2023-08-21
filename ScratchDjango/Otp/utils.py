@@ -4,6 +4,7 @@ from io import BytesIO
 
 import pyotp
 import qrcode
+from django.conf import settings
 from django.conf.global_settings import EMAIL_HOST_USER
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -45,7 +46,7 @@ def send_email(mailto, header, message):
 def generate_otp(user):
     otp_base32 = pyotp.random_base32()
     otp_auth_url = pyotp.totp.TOTP(otp_base32).provisioning_uri(
-        name=user.email.lower(), issuer_name="scratchdjango"
+        name=user.email.lower(), issuer_name=settings.OTP_ISSUER_NAME
     )
 
     img = qrcode.make(otp_auth_url)

@@ -6,7 +6,7 @@ from ScratchDjango.User.models import User
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(default='avatars/default_avatar.png', upload_to='avatars')
+    avatar = models.ImageField(default='default_avatar.png', upload_to='avatars')
     bio = models.TextField()
 
     def __str__(self):

@@ -15,7 +15,6 @@ from .serializers import ProfileSerializer
 @api_view(["POST","PUT"])
 @permission_classes([IsAuthenticated])
 def create_or_update(request):
-    try:
         user_email = request.user.email
         if request.method == "POST":
             profile_serializer = ProfileSerializer(data=request.data, context={"email":user_email}, partial=True)
@@ -26,8 +25,6 @@ def create_or_update(request):
             message = "Profile Updated"
         if profile_serializer.is_valid():
             profile_serializer.save()
+            return Response({"message":message})
         else:
-            raise ValidationError(profile_serializer.errors)
-        return Response({"message":message})
-    except ValidationError as e:
-        return Response({"message": e}, status=status.HTTP_400_BAD_REQUEST)
+            raise Response({"message":profile_serializer.errors})

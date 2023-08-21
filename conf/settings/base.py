@@ -156,3 +156,5 @@ WHITELISTED_IMAGE_TYPES = {
 }
 
 UPLOAD_FILE_MAX_SIZE = 1048576  # bytes - approx 1 mb
+
+OTP_ISSUER_NAME = "scratchdjango"
