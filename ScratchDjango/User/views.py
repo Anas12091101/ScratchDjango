@@ -17,22 +17,14 @@ from .utils import get_refresh_token, send_email
 @api_view(["POST"])
 def register_user(request):
     email = request.data['email']
-    try:
-    #     user = User.objects.create_user(
-    #         name=data["name"],
-    #         password=data["password"],
-    #         email=data["email"],
-    #     )
-        user_serializer = UserSerializer(data=request.data)
-        if user_serializer.is_valid():
-            user_serializer.save()
-            message = f"Hi {email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here."
-            send_email([email], WELCOME_HEADER, message)
-            return Response({"message": "User Registered."}, status=status.HTTP_200_OK)
-        else:
-            raise ValidationError(user_serializer.errors)
-    except ValidationError as e:
-        return Response({"message": e}, status=status.HTTP_400_BAD_REQUEST)
+    user_serializer = UserSerializer(data=request.data)
+    if user_serializer.is_valid():
+        user_serializer.save()
+        message = f"Hi {email}, Welcome to DjangoFromScratch. We hope you enjoy our product and have a good time here."
+        send_email([email], WELCOME_HEADER, message)
+        return Response({"message": "User Registered."}, status=status.HTTP_200_OK)
+    else:
+        return Response({"message":user_serializer.errors})
 
 
 @api_view(["POST"])
