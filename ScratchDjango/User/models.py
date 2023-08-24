@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.db.models import BooleanField, CharField, EmailField
+from django.db.models import BooleanField, CharField, EmailField, IntegerField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -36,6 +36,7 @@ class User(AbstractUser):
     name = CharField(_("Name of User"), blank=True, max_length=255)
     email = EmailField(_("email address"), unique=True, validators=[check_email])
     username = None  # type: ignore
+    last_token_iat = IntegerField(null=True) # field for storing token generate time at auth
    
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

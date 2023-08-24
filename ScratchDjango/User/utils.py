@@ -1,10 +1,11 @@
 import random
-import re
 from email.mime.image import MIMEImage
 from io import BytesIO
 
+import jwt
 import pyotp
 import qrcode
+from django.conf import settings
 from django.conf.global_settings import EMAIL_HOST_USER
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -47,7 +48,10 @@ def send_email(mailto, header, message):
 
 def get_refresh_token(user):
     refresh = RefreshToken.for_user(user)
-
+    payload = jwt.decode(str(refresh.access_token), settings.SECRET_KEY , algorithms=["HS256"])
+    print(user.id)
+    user.last_token_iat = payload['iat']
+    user.save()
     return {
         "refresh": str(refresh),
         "access": str(refresh.access_token),
