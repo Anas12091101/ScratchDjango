@@ -17,8 +17,8 @@ def get_membership_details(request):
 @permission_classes([IsAuthenticated])
 def get_user_membership(request):
     user = request.user
-    subscription = Subscription.objects.get(user=user)
-    membership = subscription.membership
+    # subscription = Subscription.objects.get(user=user)
+    membership = user.subscription.membership
     serializer = MembershipSerializer(membership, many=False)
     return Response(serializer.data)
 

@@ -53,8 +53,7 @@ INSTALLED_APPS = [
     "django_rest_passwordreset",
     "ScratchDjango.Otp",
     "ScratchDjango.Profile",
-    "django_rest_passwordreset",
-    'ScratchDjango.Subscriptions'
+    'ScratchDjango.Subscriptions',
     'corsheaders',
 ]
 
@@ -162,3 +161,6 @@ WHITELISTED_IMAGE_TYPES = {
 UPLOAD_FILE_MAX_SIZE = 1048576  # bytes - approx 1 mb
 
 OTP_ISSUER_NAME = "scratchdjango"
+
+PAYPAL_CLIENT_ID = env("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = env("PAYPAL_CLIENT_SECRET")
