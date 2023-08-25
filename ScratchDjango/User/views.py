@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate
-from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -11,19 +10,13 @@ from .constants import GOOGLE_AUTHENTICATOR, WELCOME_HEADER
 from .models import User
 from .serializers import UserSerializer
 from .tasks import send_email
-from .utils import (  # send_email,
-    check_otp_email,
-    check_otp_GA,
-    generate_email_otp,
-    generate_otp,
-    get_refresh_token,
-)
+from .utils import get_refresh_token, start_logout_timer
 
 
 # API Views
 @api_view(["POST"])
 def register_user(request):
-    email = request.data['email']
+    email = request.data["email"]
     user_serializer = UserSerializer(data=request.data)
     if user_serializer.is_valid():
         user_serializer.save()
@@ -31,8 +24,8 @@ def register_user(request):
         send_email.delay([email], WELCOME_HEADER, message)
         return Response({"message": "User Registered."}, status=status.HTTP_200_OK)
     else:
-        return Response({"message":user_serializer.errors})
-    
+        return Response({"message": user_serializer.errors})
+
 
 @api_view(["POST"])
 def login_user(request):
@@ -40,15 +33,18 @@ def login_user(request):
     if user:
         if not user.otp.otp_enabled:
             token = get_refresh_token(user)
+            start_logout_timer(user)
             return Response({"token": token}, status=status.HTTP_200_OK)
+
         elif user.otp.otp_enabled == "Email":
             otp = generate_email_otp([user.email])
             user.otp.email_otp = otp
             user.otp.save()
             user.save()
             return Response({"type": "email"}, status=status.HTTP_200_OK)
+
         else:
-            return Response({"type": GOOGLE_AUTHENTICATOR},status=status.HTTP_200_OK)
+            return Response({"type": GOOGLE_AUTHENTICATOR}, status=status.HTTP_200_OK)
     else:
         return Response({"message": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
