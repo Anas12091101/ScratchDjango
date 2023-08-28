@@ -1,16 +1,13 @@
 import random
-import re
 from email.mime.image import MIMEImage
 from io import BytesIO
 
 import pyotp
 import qrcode
+from django.conf import settings
 from django.conf.global_settings import EMAIL_HOST_USER
-from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from ScratchDjango.Otp.models import Otp
 
 from .constants import GOOGLE_AUTHENTICATOR
 
@@ -45,19 +42,11 @@ def send_email(mailto, header, message):
     )
     email.send(fail_silently=False)
 
-def get_refresh_token(user):
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        "refresh": str(refresh),
-        "access": str(refresh.access_token),
-    }
-
 
 def generate_otp(user):
     otp_base32 = pyotp.random_base32()
     otp_auth_url = pyotp.totp.TOTP(otp_base32).provisioning_uri(
-        name=user.email.lower(), issuer_name="scratchdjango"
+        name=user.email.lower(), issuer_name=settings.OTP_ISSUER_NAME
     )
 
     img = qrcode.make(otp_auth_url)
@@ -87,3 +76,11 @@ def check_otp_email(user, otp):
     if user.otp.email_otp == otp:
         return True
     return False
+
+def get_refresh_token(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }

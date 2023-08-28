@@ -33,7 +33,7 @@ Add .env file
 
 ```bash
   docker compose up
-  docker sh -it <web container name> -bash
+  docker exec -it <web container name> -bash
   python manage.py migrate
 ```
 

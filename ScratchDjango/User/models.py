@@ -2,14 +2,18 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import BooleanField, CharField, EmailField
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.signals import reset_password_token_created
 
+from ScratchDjango.Otp.models import Otp
+
 from .constants import FRONTEND_URL, HOST
 from .managers import UserManager
-from .utils import check_email, send_email
+from .utils import send_email
+from .validators import check_email
 
 
 @receiver(reset_password_token_created)
@@ -32,12 +36,7 @@ class User(AbstractUser):
     name = CharField(_("Name of User"), blank=True, max_length=255)
     email = EmailField(_("email address"), unique=True, validators=[check_email])
     username = None  # type: ignore
-    otp_choices = [("GA", "Google Authenticator"), ("Email", "Email")]
-    email_otp = CharField(max_length=6, null=True, blank=True)
-    otp_enabled = CharField(choices=otp_choices, null=True, blank=True, max_length=255)
-    otp_base32 = CharField(max_length=255, null=True, blank=True)
-    otp_auth_url = CharField(max_length=255, null=True, blank=True)
-
+   
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
@@ -48,7 +47,6 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         try:
-            # self.full_clean()
             super(User, self).save(*args, **kwargs)
         except IntegrityError as e:
             raise ValidationError(str(e))

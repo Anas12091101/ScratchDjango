@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     "ScratchDjango.User",
     "rest_framework_simplejwt",
     "django_rest_passwordreset",
+    "ScratchDjango.Otp",
+    "ScratchDjango.Profile",
 ]
 
 MIDDLEWARE = [
@@ -146,3 +148,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
+
+WHITELISTED_IMAGE_TYPES = {
+    'jpeg': 'image/jpeg',
+    'jpg': 'image/jpeg',
+    'png': 'image/png'
+}
+
+UPLOAD_FILE_MAX_SIZE = 1048576  # bytes - approx 1 mb
+
+OTP_ISSUER_NAME = "scratchdjango"
