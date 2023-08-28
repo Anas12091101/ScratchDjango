@@ -53,11 +53,14 @@ INSTALLED_APPS = [
     "django_rest_passwordreset",
     "ScratchDjango.Otp",
     "ScratchDjango.Profile",
+    'ScratchDjango.Subscriptions',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "conf.jwt_middleware.JWTMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -158,3 +161,9 @@ WHITELISTED_IMAGE_TYPES = {
 UPLOAD_FILE_MAX_SIZE = 1048576  # bytes - approx 1 mb
 
 OTP_ISSUER_NAME = "scratchdjango"
+
+PAYPAL_CLIENT_ID = env("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = env("PAYPAL_CLIENT_SECRET")
+
+CELERY_BROKER_URL=env("CELERY_BROKER")
+CELERY_RESULT_BACKEND=env("CELERY_BACKEND")

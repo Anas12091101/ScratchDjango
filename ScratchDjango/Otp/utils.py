@@ -20,6 +20,7 @@ def create_qr_data(qrcode):
     image = MIMEImage(binary_data)
     return image
 
+
 def send_email_qr(mailto, header, message, qrcode):
     email = EmailMultiAlternatives(
         header,
@@ -28,9 +29,10 @@ def send_email_qr(mailto, header, message, qrcode):
         mailto,
         reply_to=[EMAIL_HOST_USER],
     )
-    email.mixed_subtype = 'related'
+    email.mixed_subtype = "related"
     email.attach(create_qr_data(qrcode))
     email.send(fail_silently=False)
+
 
 def send_email(mailto, header, message):
     email = EmailMessage(
@@ -55,7 +57,8 @@ def generate_otp(user):
     user.otp.otp_base32 = otp_base32
     user.otp.save()
 
-    return {"base32": otp_base32, "otpauth_url": otp_auth_url, "qrcode":img}
+    return {"base32": otp_base32, "otpauth_url": otp_auth_url, "qrcode": img}
+
 
 def generate_email_otp(email):
     otp = ""
@@ -76,6 +79,7 @@ def check_otp_email(user, otp):
     if user.otp.email_otp == otp:
         return True
     return False
+
 
 def get_refresh_token(user):
     refresh = RefreshToken.for_user(user)
