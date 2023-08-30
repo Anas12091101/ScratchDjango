@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from ScratchDjango.Otp.utils import generate_email_otp
@@ -33,9 +34,10 @@ def login_user(request):
     if user:
         if not user.otp.otp_enabled:
             token = get_refresh_token(user)
-            start_logout_timer(user)
+            start_logout_timer(user, token["access"])
             return Response({"token": token}, status=status.HTTP_200_OK)
 
+        # If email otp is enabled, we need to generate an email_otp here and save it.
         elif user.otp.otp_enabled == "Email":
             otp = generate_email_otp([user.email])
             user.otp.email_otp = otp
@@ -49,9 +51,9 @@ def login_user(request):
         return Response({"message": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def check_login(request):
-    user = request.user
-    serializer = UserSerializer(user)
-    return Response(serializer.data)
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def blacklist_token(request):
+    token = request.data["token"]
+    cache.set(token, "expired", timeout=24 * 60 * 60)  # setting for max 24 hrs
+    return Response({"message": "Updated blacklist"})

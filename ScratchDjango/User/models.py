@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.db.models import BooleanField, CharField, EmailField, IntegerField
+from django.db.models import CharField, EmailField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -13,7 +13,6 @@ class User(AbstractUser):
     name = CharField(_("Name of User"), blank=True, max_length=255)
     email = EmailField(_("email address"), unique=True)
     username = None  # type: ignore
-    last_token_iat = IntegerField(null=True)  # field for storing token generate time at auth
     logout_task_id = CharField(default="NA")
 
     USERNAME_FIELD = "email"

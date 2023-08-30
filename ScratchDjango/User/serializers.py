@@ -2,13 +2,10 @@ from django.dispatch import receiver
 from django_rest_passwordreset.signals import reset_password_token_created
 from rest_framework import serializers
 
-# from ScratchDjango.Profile.serializers import ProfileSerializer
 from .constants import FRONTEND_URL, HOST
 from .models import User
 from .tasks import send_email
 from .validators import check_email
-
-# from .validators import check_email
 
 
 @receiver(reset_password_token_created)
