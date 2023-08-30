@@ -53,12 +53,15 @@ INSTALLED_APPS = [
     "django_rest_passwordreset",
     "ScratchDjango.Otp",
     "ScratchDjango.Profile",
+    "ScratchDjango.Subscriptions",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "conf.jwt_middleware.JWTMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -86,6 +89,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "conf.wsgi.application"
 
+# Rest framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -102,6 +106,18 @@ DATABASES = {
     }
 }
 
+# Redis Cache
+# https://pypi.org/project/django-redis/
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env("REDIS_BROKER"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -146,15 +162,17 @@ STATICFILES_DIRS = [str(APPS_DIR / "static")]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    "http://localhost:3000",
 ]
 
-WHITELISTED_IMAGE_TYPES = {
-    'jpeg': 'image/jpeg',
-    'jpg': 'image/jpeg',
-    'png': 'image/png'
-}
+WHITELISTED_IMAGE_TYPES = {"jpeg": "image/jpeg", "jpg": "image/jpeg", "png": "image/png"}
 
 UPLOAD_FILE_MAX_SIZE = 1048576  # bytes - approx 1 mb
 
 OTP_ISSUER_NAME = "scratchdjango"
+
+PAYPAL_CLIENT_ID = env("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = env("PAYPAL_CLIENT_SECRET")
+
+CELERY_BROKER_URL = env("REDIS_BROKER")
+CELERY_RESULT_BACKEND = env("CELERY_BACKEND")

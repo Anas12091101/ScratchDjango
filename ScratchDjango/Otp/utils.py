@@ -20,17 +20,6 @@ def create_qr_data(qrcode):
     image = MIMEImage(binary_data)
     return image
 
-def send_email_qr(mailto, header, message, qrcode):
-    email = EmailMultiAlternatives(
-        header,
-        message,
-        EMAIL_HOST_USER,
-        mailto,
-        reply_to=[EMAIL_HOST_USER],
-    )
-    email.mixed_subtype = 'related'
-    email.attach(create_qr_data(qrcode))
-    email.send(fail_silently=False)
 
 def send_email(mailto, header, message):
     email = EmailMessage(
@@ -55,7 +44,8 @@ def generate_otp(user):
     user.otp.otp_base32 = otp_base32
     user.otp.save()
 
-    return {"base32": otp_base32, "otpauth_url": otp_auth_url, "qrcode":img}
+    return {"base32": otp_base32, "otpauth_url": otp_auth_url, "qrcode": img}
+
 
 def generate_email_otp(email):
     otp = ""
@@ -77,10 +67,15 @@ def check_otp_email(user, otp):
         return True
     return False
 
-def get_refresh_token(user):
-    refresh = RefreshToken.for_user(user)
 
-    return {
-        "refresh": str(refresh),
-        "access": str(refresh.access_token),
-    }
+def check_user_otp(user, otp):
+    if user.otp.otp_enabled == GOOGLE_AUTHENTICATOR:
+        val = check_otp_GA(user, otp)
+    elif user.otp.otp_enabled == "Email":
+        val = check_otp_email(user, otp)
+        if val:
+            # Resetting so that it won't be used again
+            user.otp.email_otp == "".join([str(random.randint(0, 9)) for i in range(6)])
+            user.otp.save()
+            user.save()
+    return val

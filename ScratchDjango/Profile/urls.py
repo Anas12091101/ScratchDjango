@@ -1,7 +1,8 @@
 from django.urls import path
 
-from .views import create_or_update
+from .views import get_user_profile, update_profile
 
 urlpatterns = [
-    path("create_profile",create_or_update,name="create_profile")
+    path("update_profile", update_profile, name="create_profile"),
+    path("get_profile", get_user_profile, name="get_profile"),
 ]
