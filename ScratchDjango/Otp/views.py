@@ -44,4 +44,4 @@ def check_otp(request):
         start_logout_timer(user, token["access"])
         return Response({"token": token}, status=status.HTTP_200_OK)
     else:
-        return Response({"message": "Incorrect otp"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"message": "Incorrect otp"}, status=status.HTTP_403_FORBIDDEN)

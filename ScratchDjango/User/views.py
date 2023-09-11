@@ -25,7 +25,7 @@ def register_user(request):
         send_email.delay([email], WELCOME_HEADER, message)
         return Response({"message": "User Registered."}, status=status.HTTP_200_OK)
     else:
-        return Response({"message": user_serializer.errors})
+        return Response({"message": user_serializer.errors}, status=status.HTTP_409_CONFLICT)
 
 
 @api_view(["POST"])

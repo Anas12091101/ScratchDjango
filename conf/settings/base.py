@@ -34,13 +34,15 @@ if READ_DOT_ENV_FILE:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1", "172.18.0.1"]
 
 AUTH_USER_MODEL = "User.User"
 
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
+    "ScratchDjango.Chat",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -88,6 +90,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "conf.wsgi.application"
+ASGI_APPLICATION = "conf.asgi.application"
+
 
 # Rest framework
 REST_FRAMEWORK = {
@@ -176,3 +180,12 @@ PAYPAL_CLIENT_SECRET = env("PAYPAL_CLIENT_SECRET")
 
 CELERY_BROKER_URL = env("REDIS_BROKER")
 CELERY_RESULT_BACKEND = env("CELERY_BACKEND")
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", "6379")],
+        },
+    },
+}

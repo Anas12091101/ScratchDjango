@@ -22,10 +22,11 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/", include("ScratchDjango.User.urls")),
-    path("otp/",include("ScratchDjango.Otp.urls")),
-    path("profile/",include("ScratchDjango.Profile.urls")),
-    path("subscription/",include("ScratchDjango.Subscriptions.urls"))
+    path("otp/", include("ScratchDjango.Otp.urls")),
+    path("profile/", include("ScratchDjango.Profile.urls")),
+    path("subscription/", include("ScratchDjango.Subscriptions.urls")),
+    path("chat/", include("ScratchDjango.Chat.urls")),
 ]
 
 # serving files in development env
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

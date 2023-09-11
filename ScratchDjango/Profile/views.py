@@ -29,3 +29,10 @@ def get_user_profile(request):
     profile = Profile.objects.get(user=request.user)
     serializer = ProfileSerializer(profile, many=False)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def get_all_profile(request):
+    profile = Profile.objects.all()
+    serializer = ProfileSerializer(profile, many=True)
+    return Response(serializer.data)

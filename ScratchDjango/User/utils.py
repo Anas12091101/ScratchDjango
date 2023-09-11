@@ -16,7 +16,7 @@ def get_refresh_token(user):
 
 
 def calculate_logout_time(duration):
-    return datetime.now() + timedelta(seconds=duration * 15)
+    return datetime.now() + timedelta(hours=duration)
 
 
 # Starts logout timer based on user's subscription
