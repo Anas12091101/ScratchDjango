@@ -5,3 +5,4 @@ ScratchDjango/**/__pycache__/
 data/
 ScratchDjango/**/**/__pycache__/
 ScratchDjango/media/avatars/
+ScratchDjango/media/message_files/
