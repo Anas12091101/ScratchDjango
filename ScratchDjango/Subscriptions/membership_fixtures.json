@@ -1,0 +1,57 @@
+[
+  {
+    "model": "Subscriptions.Membership",
+    "pk": 1,
+    "fields": {
+      "membership_type": "free",
+      "price": 0.0,
+      "period": "y",
+      "features": ["f1"],
+      "login_hours": 1
+    }
+  },
+  {
+    "model": "Subscriptions.Membership",
+    "pk": 2,
+    "fields": {
+      "membership_type": "standard",
+      "price": 10.0,
+      "period": "m",
+      "features": ["f1", "f2", "f3"],
+      "login_hours": 3
+    }
+  },
+  {
+    "model": "Subscriptions.Membership",
+    "pk": 3,
+    "fields": {
+      "membership_type": "standard",
+      "price": 100.0,
+      "period": "y",
+      "features": ["f1", "f2", "f3"],
+      "login_hours": 3
+    }
+  },
+  {
+    "model": "Subscriptions.Membership",
+    "pk": 4,
+    "fields": {
+      "membership_type": "pre",
+      "price": 30.0,
+      "period": "m",
+      "features": ["f1", "f2", "f3", "f4", "f5"],
+      "login_hours": 5
+    }
+  },
+  {
+    "model": "Subscriptions.Membership",
+    "pk": 5,
+    "fields": {
+      "membership_type": "pre",
+      "price": 300.0,
+      "period": "y",
+      "features": ["f1", "f2", "f3", "f4", "f5"],
+      "login_hours": 5
+    }
+  }
+]

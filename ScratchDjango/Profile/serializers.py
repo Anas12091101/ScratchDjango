@@ -10,10 +10,11 @@ from .validators import validate_image
 
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, **kwargs):
-    profile_serializer = ProfileSerializer(data={}, context={"email":instance.email}, partial=True)
-    if profile_serializer.is_valid():
-        profile_serializer.save()
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        profile_serializer = ProfileSerializer(data={}, context={"email":instance.email}, partial=True)
+        if profile_serializer.is_valid():
+            profile_serializer.save()
 
 class ProfileSerializer(serializers.Serializer):
     user = UserSerializer()
